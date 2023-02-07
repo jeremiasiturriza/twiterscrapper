@@ -9,23 +9,24 @@ def tweets(hashtag, cant_tweets):
     scraper = tw.TwitterSearchScraper(hashtag)
     lista = []
     for tweet in scraper.get_items():
-        lista.append([tweet.date, 
-                tweet.username, 
-                tweet.hashtags,
-                tweet.retweetCount,
-                tweet.likeCount,
-                tweet.rawContent,
-                tweet.url])
+        lista.append([tweet.date, # Fecha del Tweet
+                tweet.username,   # Nombre del Usuario
+                tweet.hashtags,   # Hashtags dentro del tweet
+                tweet.retweetCount, # Cantidad de Retweets
+                tweet.likeCount,    # Cantidad de Likes
+                tweet.rawContent,   # Contenido del Tweet
+                tweet.url])         # URL del Tweet
     #lista.append(tweet.hashtags)
         if len(lista) == cant_tweets:
             break
     return lista
 
-a = tweets('python', 300)
-
-def convertir_a_DataFrame(lista):
+def to_DataFrame(lista, orden, export = True):
     '''
     Convierte la lista generada en un DataFrame
+    Se debe elegir una columna para que ordene:
+    'Fecha', 'Likes', 'Retweets'
+    Puede elegir exportarlo o bien utilizarlo como df
     '''
     df = pd.DataFrame(lista)
     df = df.rename(columns={0: 'Fecha',
@@ -38,7 +39,15 @@ def convertir_a_DataFrame(lista):
                             
     
     df['Fecha'] = df['Fecha'].apply(lambda x: x.strftime("%d/%m/%y %r"))
-    df = df.sort_values(['Likes', 'Fecha'], ascending = [False, False])
-    df.to_csv('data.csv', index = False)
+    
+    df = df.sort_values(orden, ascending = False)
+    
+    if export:
+        df.to_csv('data.csv', index = False)
+    else:
+        return df
+
+tweet = get_tweets('argentina campeon', 1000)
+df = to_DataFrame(tweet,'Likes', export=True)
 
 
